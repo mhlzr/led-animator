@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>LED Animation Editor</title>
+		
+		<link rel="icon" type="image/png" href="img/favicon.png">
+		
+		<link type="text/css" href="css/standard.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/spritesheet.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/farbtastic/farbtastic.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/smoothness/jquery-ui-1.8.17.custom.css" media="all" rel="stylesheet" />	
+		
+		
+	
+		<!--http://michaelhue.com/keyscss/-->
+		<link type="text/css" href="css/keys.css" media="all" rel="stylesheet" />
+		
+		<script src="js/lib/jquery-1.7.1.min.js"></script>
+		<script src="js/lib/jquery-ui-1.8.17.custom.min.js"></script>
+		
+		<!-- http://knockoutjs.com/ -->
+		<script src="js/lib/knockout-2.0.0.js"></script>
+		
+		<!-- http://www.jstorage.info/ -->
+		<script src="js/lib/jstorage.js"></script>
+		
+		<!-- TODO http://mattfarina.github.com/farbtastic/demo2.html -->
+		<!--http://www.acko.net/blog/farbtastic-jquery-color-picker-plug-in/ -->
+		<script src="js/lib/farbtastic.js"></script>
+		
+		<!-- http://www.modernizr.com/ -->
+		<script src="js/lib/modernizr.js"></script>
+		
+		<!--https://github.com/mrdoob/three.js/ -->
+		<script src="js/lib/three.js/Three.js"></script>
+		
+		<!--http://paulirish.com/2011/requestanimationframe-for-smart-animating/-->
+		<script src="js/lib/requestAnimationFrame.js"></script>
+
+
+		<script src="js/model/Animation.js"></script>
+		<script src="js/model/Frame.js"></script>
+		
+		<script src="js/view/Preview2D.js"></script>
+		<script src="js/view/Preview3D.js"></script>
+		<script src="js/view/Timeline.js"></script>
+		
+		<script src="js/controller/ApplicationController.js"></script>
+		
+		<script src="js/service/AnimationConverter.js"></script>
+		<script src="js/service/WebSocketService.js"></script>
+		
+		<script>
+		
+			var controller;
+
+				 
+				 
+			$(document).ready(function() {
+			
+			
+				if(!Modernizr.canvas && !Modernizr.webgl){
+					$( "#dialog-nopreview" ).dialog({modal:true});
+					return;
+				}
+				
+				$("#settings-dialogue-type-radios").buttonset();
+				
+				$("#settings-dialogue-type-radios input").click(function(event){
+					if( $("#settings-dialogue-type-radios input[name='type']:checked").val() === "cube" ){
+						$("#settings-dialogue-ledcount-slider").hide();
+						$("#settings-dialogue-ledcount-value").text(4);
+					}
+					else{
+						$("#settings-dialogue-ledcount-slider").show();
+
+					}
+				});
+
+				$("#settings-dialogue-ledcount-slider").slider({
+					min: 1,
+					max: 8,
+					value : 4,
+					slide : function(event, ui){
+						$("#settings-dialogue-ledcount-value").text(ui.value);
+					}
+				});
+				
+				
+				$("#settings-dialogue-form-author, #settings-dialogue-form-title").keyup(function(){
+				
+					unavailable();
+					
+					var a = $("#settings-dialogue-form-author").val(),
+						 t = $("#settings-dialogue-form-title").val();
+						 
+						 if(a === "" || t === ""){ unavailable();}
+						 else{
+						 
+						 $.ajax({
+							type : "GET",
+							url: "storage/available/" + a + "/" + t + "/",
+							dataType : "json",
+							success: function(response){
+								if(response.status == "false"){
+									unavailable();
+								}
+								else{
+								available();
+								 }
+							},
+							error : function(xhr, status, error){
+								console.log(status);
+							}
+						});
+			
+
+					}
+					
+
+				});
+				
+				function available(){
+							$(":button:contains('Create')").removeAttr("disabled").removeClass( 'ui-state-disabled' );
+							$("#settings-dialogue-avail-icon").removeClass("sprite-error-png").addClass("sprite-okay-png");
+							$("#settings-dialogue-avail-text").text("Allright!");
+
+						}
+				function unavailable(){
+							$(":button:contains('Create')").attr("disabled","disabled").addClass( 'ui-state-disabled' );
+							$("#settings-dialogue-avail-icon").removeClass("sprite-okay-png").addClass("sprite-error-png");
+							$("#settings-dialogue-avail-text").text("Already taken, sorry.");
+						}
+				
+				
+				$("#settings-dialogue").dialog({ 
+					width: 400,
+					modal : true,
+					resizable: false,
+					draggable: false,
+					buttons: 
+						{ 
+						"Create": init, 
+						Cancel : function(){$(this).dialog("close")}
+
+							
+						}
+				});
+				
+				unavailable();
+				
+			});
+			
+			function init(){
+				$("#settings-dialogue").dialog("close");
+				
+				var author = $("#settings-dialogue-form-author").val(),
+					 title = $("#settings-dialogue-form-title").val(),
+					 mode =(!!$("#type-matrix").attr("checked")) ? 2 : 3;
+					 ledsPerAxis = $("#settings-dialogue-ledcount-slider").slider("value");
+				
+				//restrict to 4 leds if 3D
+				if(mode === 3) ledsPerAxis = 4;
+				
+				controller = new ApplicationController($("#preview-container"), $("#timeline"));
+				controller.createAnimation(author,title,mode,ledsPerAxis);
+				createGUI();
+				addEventListeners();
+				
+				draw();					
+			
+			}
+						
+			function createGUI(){			
+		
+				$("#colorpicker").farbtastic("#color");
+				
+				$("#animation-controls").buttonset();
+				
+				$("#animation-controls-addframe").button({ text: true, icons: { primary: "ui-icon-plus"}});
+				$("#animation-controls-removeframe").button({ text: true, disabled: true,  icons: { primary: "ui-icon-trash"}});
+				$("#animation-controls-play").button({ text: true, icons: { primary: "ui-icon-play"}});
+				$("#animation-controls-stop").button({ text: true, icons: { primary: "ui-icon-stop"}});
+				$("#animation-controls-save").button({ text: true, icons: { primary: "ui-icon-arrowstop-1-s"}});
+				$("#animation-controls-new").button({ text: true, icons: { primary: "ui-icon-document"}});
+				
+			}
+
+			
+			function addEventListeners(){
+			
+				//$("#configuration-button").click(function(){$("#settings-dialogue").dialog('open')});  
+				$("#animation-controls-addframe").click(controller.addFrame);  
+				$("#animation-controls-removeframe").click(controller.removeFrame);  
+				$("#animation-controls-play").click(controller.playCurrentAnimation);
+				$("#animation-controls-save").click(controller.saveCurrentAnimation);
+				$("#animation-controls-new").click(function(){$("#settings-dialogue").dialog('open')});
+				
+				
+				$("#timeline").bind('frameSelected', controller.onFrameSelect);
+				
+				$("#settings-frame > *").filter(":input").change(controller.updateFrameSettings);
+				
+				$("#settings-toolbar").on("click", "span", controller.changeTool);
+				
+				$(this).bind("keydown", controller.onKeyDown);
+			}	
+			
+			
+			function draw(){
+						
+				requestAnimationFrame(draw);
+				controller.updatePreview();
+			}
+			
+			
+
+		</script>
+	</head>
+	<body>
+		<header>
+			<h1>LED-Animation Editor</h1>
+		</header>
+	
+		<div id="wrapper" style="clear:both">
+		<div id="preview-container">
+			<canvas width="400" height="400"></canvas>
+		</div>
+		
+		<div id="settings-container">
+				<div id="settings-toolbar" class="toolbox">
+						<div title="Point-Tool" class="active"><span class="sprite sprite-tool_point-png"></span></div>
+						<div title="Line-Tool"><span class="sprite sprite-tool_line-png deactivated" ></span></div>
+						<div title="Plane-Tool"><span class="sprite sprite-tool_plane-png deactivated"></span></div>
+						<div title="Cube-Tool"><span class="sprite sprite-tool_cube-png deactivated"></span></div>
+						<div title="Colorpicker"><span class="sprite sprite-color_picker-png"></span></div>
+						<div title="Eraser"><span class="sprite sprite-draw_eraser-png"></span></div>
+				</div>
+				<div id="settings-color">
+					<div id="colorpicker"></div>
+					<input type="text" id="color" value="#DD4431" disabled="true"/>
+					<input type="checkbox" id="randomColor" value="" />
+					<label for="randomColor">Random Color</label>
+				</div>
+			<div id="settings-frame-container">
+				<h2>Frame-Settings</h2>
+				<div id="settings-frame">
+					<label for="frame-duration">Duration (ms)</label>
+					<input id="frame-duration" type="text" value="1000" /><br/>
+					<label for="frame-clearOnEnter">Clear on Enter</label>
+					<input id="frame-clearOnEnter" type="checkbox" checked="checked" />
+					
+				</div>
+			</div>
+		</div>
+		
+		<div id="timeline-container">
+		
+			<h2>Timeline</h2>
+			<div id="timeline"></div>
+			
+			<div id="animation-controls"  class="toolbox">
+				<button id="animation-controls-addframe">New Frame</button>
+				<button id="animation-controls-removeframe">Remove Frame</button>
+				<button id="animation-controls-play">Send Animation</button>
+				<button id="animation-controls-save">Save Animation</button>
+				<button id="animation-controls-new">New Animation</button>
+			</div>
+		</div>
+		
+		
+		<div id="help">
+
+		<div class="section">
+			<em>Frames</em>
+			<div><kbd>SPACE</kbd> &#8211; Create new Frame</div>
+			<div><kbd>DEL</kbd> &#8211; Remove Frame</div>
+			<div><kbd>&larr;</kbd> &#8211; Previous Frame</div>
+			<div><kbd>&rarr;</kbd> &#8211; Next Frame</div>
+		</div>
+		<div class="section">
+			<em>Animation</em>
+			<div><kbd>CTRL</kbd> + <kbd>P</kbd> &#8211; Play Animation</div>
+			<div><kbd>CTRL</kbd> + <kbd>S</kbd> &#8212; Save Animation</div>
+			<div><kbd>CTRL</kbd> + <kbd>N</kbd> &#8212; New Animation</div>
+		</div>
+		<div class="section">
+			<em>Tools</em>
+			<div><kbd>CTRL</kbd> + <kbd>I</kbd> &#8212; Point Tool</div>
+			<div><kbd>CTRL</kbd> + <kbd>L</kbd> &#8212; Line Tool</div>
+			<div><kbd>CTRL</kbd> + <kbd>P</kbd> &#8212; Plane Tool</div>
+			<div><kbd>CTRL</kbd> + <kbd>C</kbd> &#8212; Cube Tool</div>
+			<div><kbd>CTRL</kbd> + <kbd>O</kbd> &#8212; Colorpicker</div>
+			<div><kbd>CTRL</kbd> + <kbd>E</kbd> &#8212; Eraser</div>
+		</div>		
+		
+		</div>
+		
+	</div>
+	
+	
+		<!-- FALLBACKS START-->
+		<noscript>
+		You need to enable JavaScript.
+		</noscript>
+	
+		<div id="dialog-nopreview" class="dialog" title="Unsupported Browser">
+			<p>
+			It seems, as if your browser does not support WebGL nor Canvas.<br/>
+			Get a new one: <a href="http://www.mozilla.org/">Firefox</a> or <a href="http://www.google.com/chrome">Chrome</a> should do it.
+			</p>
+		</div>
+		<!-- FALLBACKS END-->
+		
+		
+		<div id="settings-dialogue" title="New LED-Animation">
+			
+			<div id="settings-dialogue-forms">
+				<label for="settings-dialogue-form-author">Author</label>
+				<input type="text" id="settings-dialogue-form-author" placeholder="Your name" maxlength="140"/>
+				<label for="settings-dialogue-form-title">Title</label>
+				<input type="text" id="settings-dialogue-form-title" placeholder="a title for the animation" maxlength="140"/>
+				
+				<p>
+					<span id="settings-dialogue-avail-icon" style="display:block;float:left;" class="sprite sprite-error-png"></span>
+					<span id="settings-dialogue-avail-text" style="float:left;margin-left: 5px">Please enter data</span>
+				</p>
+				
+			</div>
+							
+			<div id="settings-dialogue-type">
+				
+				<div id="icons" style="height:64px;width:128px">
+					<div class="sprite sprite-matrix-png" style="width: 64px;height:64px;float:left"></div>
+					<div class="sprite sprite-cube-png" style="width: 64px;height:64px;float:left"></div>
+				</div>
+		
+				<div id="settings-dialogue-type-radios">
+					<label for="type-matrix">Matrix</label>	
+					<input name="type" type="radio" checked="checked" value="matrix" id="type-matrix"/>
+					<label for="type-cube">Cube</label>				
+					<input name="type" type="radio" id="type-cube" value="cube"/>
+				</div>
+				
+				<div id="settings-dialogue-ledcount" style="width:120px;padding-top:12px">
+					<label>LEDs per axis: <span id="settings-dialogue-ledcount-value">4</span></label>
+					<div id="settings-dialogue-ledcount-slider" style="width:120px;margin-top:5px"></div>
+					</div>
+				</div>	
+				
+		</div>
+		
+	</body>
+	
+
+	
+
+	
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+		<title>LED Animation Browser</title>
+		
+		<link rel="icon" type="image/png" href="img/favicon.png">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />
+		<link type="text/css" href="css/spritesheet.css" media="all" rel="stylesheet" />
+		
+		<style>
+			body{background-color: #f0f0f0;}
+		</style>
+
+		
+		<!--http://michaelhue.com/keyscss/-->
+		<link type="text/css" href="css/keys.css" media="all" rel="stylesheet" />
+		
+		<script src="js/lib/jquery-1.7.1.min.js"></script>
+		<script src="js/lib/jquery.mobile-1.0.1.min.js"></script>
+
+		
+		<!-- http://www.modernizr.com/ -->
+		<script src="js/lib/modernizr.js"></script>
+		
+		<!-- http://knockoutjs.com/ -->
+		<script src="js/lib/knockout-2.0.0.js"></script>
+		
+		<!-- http://www.jstorage.info/ -->
+		<script src="js/lib/jstorage.js"></script>
+	
+		<script src="js/service/WebSocketService.js"></script>
+		
+		<script>	
+
+		var webSocketService;
+		
+			$(document).ready(function(){
+		
+			addEventListeners();
+
+			webSocketService = new WebSocketService();
+			
+			webSocketService.connect(
+					function(){}, 
+					function(data){ console.log(data)}, 
+					function(){alert("Can't connect to WebSocketServer.")}
+				);
+				
+			ko.applyBindings(webSocketService);
+			
+			
+			});
+				
+			function createView(data, type){
+								
+			var containerName;					
+			if(type == 2)  containerName = "#2d";
+			else if(type ==3) containerName = "#3d";
+			else containerName = "#all"
+			
+			$(containerName+" [data-role=content]").html("<ul data-role=\"listview\" data-inset=\"false\"  data-filter=\"true\"></ul>");
+					
+					var imgUrl;
+					for (var i=0;i<data.length;i++)
+					{
+						
+						
+						imgUrl =  "/storage/" + data[i].thumbnailUrl.replace("\/","/");
+						
+						$(containerName+" [data-role=content] ul").append("<li data-json=\"" + data[i].jsonUrl + "\"><img src=\"" + imgUrl+ "\"/><h3>"+data[i].title+"</h3><p>"+ data[i].author +"</p></li>");
+						$(containerName+" [data-role=content] ul li").on("vclick", function(e){
+								e.stopImmediatePropagation();
+								webSocketService.send( window.location.protocol + "//" + window.location.host + "/storage/" + $(this).attr("data-json") );
+						});
+
+					}
+
+					$(containerName).page("destroy").page();;
+				
+			}
+			
+			function getData(type){
+			
+			
+			var type = type || null;
+			var url = "storage/list";
+			if(type != null) url += "/" + type; 
+			
+			$.ajax({
+				type : "GET",
+				url: url,
+				dataType : "json",
+				success: function(response){
+					createView(response.data, type);
+				},
+				error : function(xhr, status, error){
+					console.log(status);
+				}
+			});
+			}
+			
+			function addEventListeners(){
+			
+				$("#2d").live("pagebeforeshow", function(event) {
+					getData(2);
+				});
+				
+				$("#3d").live("pagebeforeshow", function() {
+					getData(3);
+				});
+				
+				$("#all").live("pagebeforeshow", function() {
+					getData();
+				});
+
+			}	
+
+
+		</script>
+	</head>
+	<body>
+
+	
+		<div id="main" data-role="page">
+
+			<header data-role="header">
+				<h1>LED-Animation Browser</h1>
+			</header>
+
+			<div data-role="content">	
+				<ul data-role="listview" data-inset="false"  data-filter="false">
+					<li>
+						<a href="#3d" data-transition="slide">
+							<div class="sprite sprite-cube-png" style="width: 64px;height:64px;float:left"></div>
+							<h3>3D</h3><p>3D Animations</p>
+						</a>
+					</li>
+					<li>
+						<a href="#2d" data-transition="slide">
+							<div class="sprite sprite-matrix-png" style="width: 64px;height:64px;float:left"></div>
+							<h3>2D</h3>
+							<p>2D Animations</p>
+						</a>					
+					</li>
+					<li>
+						<a href="#all" data-transition="slide">
+							<div class="sprite sprite-matrix-png" style="width: 64px;height:64px;float:left"></div>
+							<h3>All</h3>
+							<p>2D & 3D Animations</p>
+						</a>					
+					</li>
+				</ul>	
+			</div>
+			
+				<footer data-id="footer" data-position="fixed" data-role="footer" class="ui-bar">
+					<a href="#settings" data-role="button" data-icon="gear" class="ui-state-persist">Settings</a>
+				</footer>
+		
+		</div>
+			
+			
+	
+	
+		<div id="2d" data-role="page">
+			<header data-role="header">
+				<a href="#main" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left jqm-home">Home</a>
+				<h1>2D Animations</h1>
+			</header>	
+			<div data-role="content"></div>
+					<footer data-id="footer" data-position="fixed" data-role="footer" class="ui-bar">
+					<a href="#settings" data-role="button" data-icon="gear" class="ui-state-persist">Settings</a>
+				</footer>
+		</div>
+		
+		<div id="3d" data-role="page">
+			<header data-role="header">
+				<a href="#main" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left jqm-home">Home</a>
+				<h1>3D Animations</h1>
+			</header>
+			<div data-role="content"></div>
+				<footer data-id="footer" data-position="fixed" data-role="footer" class="ui-bar">
+					<a href="#settings" data-role="button" data-icon="gear" class="ui-state-persist">Settings</a>
+				</footer>
+		</div>
+		
+		
+		<div id="all" data-role="page">
+			<header data-role="header">
+				<a href="#main" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left jqm-home">Home</a>
+				<h1>All Animations</h1>
+			</header>
+			<div data-role="content"></div>
+				<footer data-id="footer" data-position="fixed" data-role="footer" class="ui-bar">
+					<a href="#settings" data-role="button" data-icon="gear" class="ui-state-persist">Settings</a>
+				</footer>
+		</div>
+		
+		
+		<div id="settings" data-role="page">
+			<header data-role="header">
+				<a href="#main" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left jqm-home">Home</a>
+				<h1>Settings</h1>
+			</header>
+			
+			<div data-role="content">
+				<div data-role="fieldcontain">
+				
+				<h3>WebSocket Status</h3>
+				<fieldset data-role="controlgroup">
+				WebSocket supported: <span data-bind="text:webSocketSupported"></span><br/>
+				WebSocket enabled: <span data-bind="text:webSocketEnabled"></span> 
+				</fieldset>
+				
+				<h3>WebSocket Settings</h3>
+				<fieldset data-role="controlgroup">
+				<label for="host">Host</label><br/>
+				<input id"host" type="text" data-bind="value:webSocketHost" /><br/>
+				<label for="host">Path</label><br/>
+				<input type="text" data-bind="value:webSocketPath" /><br/>
+				<label for="host">Schema</label><br/>
+				<input type="text" data-bind="value:webSocketScheme" /><br/>
+				<label for="host">Host</label><br/>
+				<input type="text" data-bind="value:webSocketPort" /><br/>
+				</fieldset>
+		
+				<input type="button" onclick="webSocketService.saveSettingsToLocalStorage()" value="Save"/>
+				<input type="button" onclick="webSocketService.resetDefaultSettings()" value="Reset defaults"/>
+			
+			</div>
+			
+
+		</footer>
+		</div>
+		
+
+	
+
+	
+
+		<noscript>
+		You need to enable JavaScript.
+		</noscript>
+
+		
+		
+		
+	</body>
+	
+
+	
+
+	
+</html>

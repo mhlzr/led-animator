@@ -1,0 +1,175 @@
+{
+
+	"description":"A representation of a animation for an LED-Cube or -Matrix",
+	"type":"object",
+	
+	"properties":{
+	
+		"author":{
+			"description":"Name of the author",
+			"type":"string",
+			"required" : true
+			},
+	
+		"title":{
+			"description":"Title of the animation",
+			"type":"string",
+			"required" : true
+			},
+			
+		"type":{
+			"description" : "Type of animation (2D or 3D)",
+			"type" : "string",
+			"required" : true,
+			"pattern" : "[23][dD]{1}"
+		},
+		
+		"ledsPerAxis":{
+			"description" : "Number of LEDs in one axis",
+			"type" : "integer",
+			"minimum" : 1,
+			"required" : true
+		},
+		
+		"repeat":{
+			"description" : "Whether an animation should be repeated or not",
+			"type" : "boolean",
+			"required" : false,
+			"default" : false
+		},
+
+		"frames":{
+		
+			"type":"array",
+			"required" : true,
+			"minItems" : 1,
+			"items":{
+				"type":"object",
+				
+				"properties" : {
+			
+					"duration" : {
+						"description" : "How many Milliseconds (ms) this frame should be displayed",
+						"type" : "integer",
+						"minimum" : 1,
+						"required" : true
+					},
+				
+					"clearOnEnter" : {
+						"description" : "Whether the previous frame gets combined with this one or not",
+						"type" : "boolean",
+						"required" : false,
+						"default" : true
+					},
+				
+					"points" : {
+						"description" : "",
+						"type" : "array",
+						"required" : false,
+						"optional" : true,
+						"items" : {
+							"type" : "object",
+							
+							"properties" : {
+							
+								"colors" : {
+									"description" : "Color Array",
+									"type" : "array",
+									"required" : true,
+									"minItems" : 1,
+									"items" : {
+										"description" : "A single color-value",
+										"type": "string",
+										"pattern": "0?[#x]?(([a-fA-F0-9]){3}){1,2}|random"
+									}
+								}
+							}		
+						}
+					},
+					
+					"lines" : {
+						"description" : "",
+						"type" : "array",
+						"required" : false,
+						"optional" : true,
+						"items" : {
+							"type" : "object",
+							
+							"properties" : {
+							
+								"colors" : {
+									"description" : "Color Array",
+									"type" : "array",
+									"required" : true,
+									"minItems" : 1,
+									"items" : {
+										"description" : "A single color-value",
+										"type": "string",
+										"pattern": "0?[#x]?(([a-fA-F0-9]){3}){1,2}|random"
+									}
+								}
+							}		
+						}
+					},
+					
+					
+					"planes" : {
+						"description" : "",
+						"type" : "array",
+						"required" : false,
+						"optional" : true,
+						"items" : {
+							"type" : "object",
+							
+							"properties" : {
+							
+								"colors" : {
+									"description" : "Color Array",
+									"type" : "array",
+									"required" : true,
+									"minItems" : 1,
+									"items" : {
+										"description" : "A single color-value",
+										"type": "string",
+										"pattern": "0?[#x]?(([a-fA-F0-9]){3}){1,2}|random"
+									}
+								}
+							}		
+						}
+					},
+					
+					"cubes" : {
+						"description" : "",
+						"type" : "array",
+						"required" : false,
+						"optional" : true,
+						"items" : {
+							"type" : "object",
+							
+							"properties" : {
+							
+								"colors" : {
+									"description" : "Color Array",
+									"type" : "array",
+									"required" : true,
+									"minItems" : 1,
+									"items" : {
+										"description" : "A single color-value",
+										"type": "string",
+										"pattern": "0?[#x]?(([a-fA-F0-9]){3}){1,2}|random"
+									}
+								}
+							}		
+						}
+					}
+					
+					
+				}
+			}
+		}
+	}
+}
+		
+			
+			
+

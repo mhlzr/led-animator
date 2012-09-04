@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>LED Animatior Settings</title>
+		
+		<link rel="icon" type="image/png" href="img/favicon.png">
+		
+		<link type="text/css" href="css/standard.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/spritesheet.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/smoothness/jquery-ui-1.8.17.custom.css" media="all" rel="stylesheet" />	
+
+		<script src="js/lib/jquery-1.7.1.min.js"></script>
+		<script src="js/lib/jquery-ui-1.8.17.custom.min.js"></script>
+		<script src="js/lib/modernizr.js"></script>
+		<script src="js/lib/knockout-2.0.0.js"></script>
+		<script src="js/lib/jstorage.js"></script>
+		
+		
+		<script src="js/service/WebSocketService.js"></script>
+		
+		<script>
+		var webSocketService;
+		$(document).ready(function(){
+			webSocketService = new WebSocketService();
+
+			ko.applyBindings(webSocketService);
+			
+
+		});
+		</script>
+		
+	</head>
+	<body>
+		
+		<h3>WebSocket Status</h3>
+		<p>
+		WebSocket supported: <span data-bind="text:webSocketSupported"></span> <br/>
+		WebSocket enabled: <span data-bind="text:webSocketEnabled"></span> 
+		</p>
+		<h3>WebSocket Settings</h3>
+		<p>
+			<label for="host">Host</label><br/>
+			<input id"host" type="text" data-bind="value:webSocketHost" /><br/>
+			<label for="host">Path</label><br/>
+			<input type="text" data-bind="value:webSocketPath" /><br/>
+			<label for="host">Schema</label><br/>
+			<input type="text" data-bind="value:webSocketScheme" /><br/>
+			<label for="host">Host</label><br/>
+			<input type="text" data-bind="value:webSocketPort" /><br/>
+		</p> 
+		
+		<input type="button" onclick="webSocketService.saveSettingsToLocalStorage()" value="Save"/>
+		<input type="button" onclick="webSocketService.resetDefaultSettings()" value="Reset"/>
+		
+	</body>
+	
+
+	
+
+	
+</html>

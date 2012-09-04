@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>LED Control</title>
+		
+		<link type="text/css" href="css/standard.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/spritesheet.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/smoothness/jquery-ui-1.8.17.custom.css" media="all" rel="stylesheet" />	
+		
+		<!--http://michaelhue.com/keyscss/-->
+		<link type="text/css" href="css/keys.css" media="all" rel="stylesheet" />
+		
+		<script src="js/lib/jquery-1.7.1.min.js"></script>
+		<script src="js/lib/jquery-ui-1.8.17.custom.min.js"></script>
+		
+	<script>
+		$(document).ready(function(){
+		
+			$("#slider-ledcount").slider({
+				min: 1,
+				max: 8,
+				value: 4,
+				animate : true,
+				step : 1,
+				change : onSliderChange
+			});
+			
+		
+			
+		
+		
+		function onSliderChange(event, ui){
+			$("#slider-ledcount-value").text(ui.value);
+		}
+		</script>
+		
+	</head>
+	<body>
+
+	
+		
+		
+	</body>
+	
+
+	
+
+	
+</html>

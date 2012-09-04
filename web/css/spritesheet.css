@@ -1,0 +1,109 @@
+/* http://draeton.github.com/stitches/ */
+
+.sprite {
+    background: url("../img/sprites.png") no-repeat;
+}
+
+.sprite-color_picker-png {
+    width: 32px;
+    height: 32px;
+    background-position: -548px -118px;
+}
+
+.sprite-config-png {
+    width: 40px;
+    height: 40px;
+    background-position: -411px -75px;
+}
+
+.sprite-cube-png {
+    width: 64px;
+    height: 64px;
+    background-position: -336px -75px;
+}
+
+.sprite-cube_matrix-png {
+    width: 64px;
+    height: 64px;
+    background-position: -261px -75px;
+}
+
+.sprite-draw_eraser-png {
+    width: 32px;
+    height: 32px;
+    background-position: -505px -118px;
+}
+
+.sprite-error-png {
+    width: 20px;
+    height: 20px;
+    background-position: -597px -31px;
+}
+
+
+
+.sprite-icon-configure-png {
+    width: 250px;
+    height: 68px;
+    background-position: -0px -0px;
+}
+
+.sprite-icon-configure-png:hover {
+    background-position: -0px -79px;
+}
+
+.sprite-icon-create-png:hover {
+    background-position: -261px -0px;
+}
+
+.sprite-icon-create-png {
+    width: 250px;
+    height: 50px;
+    background-position: -0px -280px;
+}
+
+.sprite-icon-view-png:hover {
+    background-position: -0px -219px;
+}
+
+.sprite-icon-view-png {
+    width: 250px;
+    height: 50px;
+    background-position: -0px -158px;
+}
+
+.sprite-matrix-png {
+    width: 64px;
+    height: 64px;
+    background-position: -522px -0px;
+}
+
+.sprite-okay-png {
+    width: 20px;
+    height: 20px;
+    background-position: -597px -0px;
+}
+
+.sprite-tool_cube-png {
+    width: 32px;
+    height: 32px;
+    background-position: -462px -118px;
+}
+
+.sprite-tool_line-png {
+    width: 32px;
+    height: 32px;
+    background-position: -548px -75px;
+}
+
+.sprite-tool_plane-png {
+    width: 32px;
+    height: 32px;
+    background-position: -505px -75px;
+}
+
+.sprite-tool_point-png {
+    width: 32px;
+    height: 32px;
+    background-position: -462px -75px;
+}

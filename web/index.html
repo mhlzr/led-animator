@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>LED Animator</title>
+		
+		<link rel="icon" type="image/png" href="img/favicon.png">
+		
+		<link type="text/css" href="css/standard.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/spritesheet.css" media="all" rel="stylesheet" />
+		<link type="text/css" href="css/smoothness/jquery-ui-1.8.17.custom.css" media="all" rel="stylesheet" />	
+
+		<script src="js/lib/jquery-1.7.1.min.js"></script>
+		<script src="js/lib/jquery-ui-1.8.17.custom.min.js"></script>
+		<script src="js/lib/detectmobilebrowser.js"></script>
+		
+		<script>
+		$(document).ready(function(){
+		
+			if(jQuery.browser.mobile){
+				location.href = "browser.html";
+			}
+
+		});
+		</script>
+		
+	</head>
+	<body>
+		
+		<div id="main-dialogue">
+
+		<div id="main-dialogue-left">
+			<a href="browser.html"><span class="sprite sprite-icon-view-png" style="display:block"></span></a>
+		</div>
+		
+		<div id="main-dialogue-center">
+			<a href="editor.html"><span class="sprite sprite-icon-create-png" style="display:block"></span></a>
+		</div>
+		
+		<div id="main-dialogue-right">
+			<a href =""><span class="sprite sprite-icon-configure-png" style="display:block"></span></a>
+		</div>
+		
+		</div>
+		
+	</body>
+	
+
+	
+
+	
+</html>
